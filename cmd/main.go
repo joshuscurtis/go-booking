@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"htmx-templ-echo-project/internal/handlers"
+	"github.com/joshuscurtis/go-booking/internal/handlers"
 	"log"
 	"time"
 

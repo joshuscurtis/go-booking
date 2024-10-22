@@ -1,1 +1,1 @@
-# htmx-templ-echo-project
+# github.com/joshuscurtis/go-booking

@@ -3,8 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"htmx-templ-echo-project/templates/pages"
-	"htmx-templ-echo-project/templates/partials"
+	"github.com/joshuscurtis/go-booking/templates/pages"
+	"github.com/joshuscurtis/go-booking/templates/partials"
 
 	"github.com/labstack/echo/v4"
 )

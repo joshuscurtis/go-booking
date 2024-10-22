@@ -1,9 +1,9 @@
-// internal/calendar/types.go
 package calendar
 
 import (
-	"htmx-templ-echo-project/models"
 	"time"
+
+	"github.com/joshuscurtis/go-booking/models"
 )
 
 type CalendarDay struct {

@@ -1,10 +1,10 @@
-module htmx-templ-echo-project
+module github.com/joshuscurtis/go-booking
 
 go 1.23.2
 
 require github.com/labstack/echo/v4 v4.12.0
 
-require github.com/mattn/go-sqlite3 v1.14.24 // indirect
+require github.com/mattn/go-sqlite3 v1.14.24
 
 require (
 	github.com/a-h/templ v0.2.778 // direct

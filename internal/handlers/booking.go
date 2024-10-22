@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"database/sql"
-	"htmx-templ-echo-project/models"
-	"htmx-templ-echo-project/templates/pages"
-	"htmx-templ-echo-project/templates/partials"
+	"github.com/joshuscurtis/go-booking/models"
+	"github.com/joshuscurtis/go-booking/templates/pages"
+	"github.com/joshuscurtis/go-booking/templates/partials"
 	"log"
 	"time"
 
