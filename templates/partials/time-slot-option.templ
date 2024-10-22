@@ -1,0 +1,17 @@
+package partials
+
+import (
+	"fmt"
+	"htmx-templ-echo-project/models"
+)
+
+templ TimeSlotOptions(timeSlots []models.TimeSlot) {
+	<option value="">Select Time Slot</option>
+	for _, slot := range timeSlots {
+		if slot.Available {
+			<option value={ slot.Time }>{ fmt.Sprintf("%s - %d spots left", slot.Time, 1 - slot.BookedCount) }</option>
+		} else {
+			<option value={ slot.Time } disabled>{ fmt.Sprintf("%s - Fully Booked", slot.Time) }</option>
+		}
+	}
+}

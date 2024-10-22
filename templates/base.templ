@@ -1,0 +1,26 @@
+package templates
+
+import "htmx-templ-echo-project/templates/partials"
+
+templ Base(pageName string) {
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{ pageName } - Modern Web App</title>
+  <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="flex flex-col min-h-screen">
+  @partials.Navigation()
+  <main class="flex-grow pt-16">
+    { children... }
+  </main>
+  @partials.Footer()
+</body>
+
+</html>
+}

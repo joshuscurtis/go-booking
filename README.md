@@ -1,1 +1,1 @@
-# go-booking
+# htmx-templ-echo-project

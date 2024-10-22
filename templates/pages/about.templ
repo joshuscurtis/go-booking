@@ -1,0 +1,72 @@
+package pages
+
+import (
+	"htmx-templ-echo-project/templates"
+	"htmx-templ-echo-project/templates/partials"
+)
+
+templ About() {
+	@templates.Base("About Us") {
+		<div class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-20">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">About Us</h1>
+				<p class="mt-6 text-xl max-w-3xl">
+					Discover the story behind our innovative platform and the team driving change in
+					the industry.
+				</p>
+			</div>
+			@partials.Body()
+		</div>
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+				<div>
+					<h2 class="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
+					<p class="text-lg text-gray-700 mb-6">
+						At [Your Company Name], we're on a mission to revolutionize [your industry] through innovative technology and
+						unparalleled customer experiences. We believe in creating solutions that empower businesses and individuals to
+						achieve their full potential.
+					</p>
+					<h3 class="text-2xl font-semibold text-gray-900 mb-3">Core Values</h3>
+					<ul class="list-disc list-inside text-gray-700 space-y-2">
+						<li>Innovation at our core</li>
+						<li>Customer-centric approach</li>
+						<li>Integrity in all we do</li>
+						<li>Continuous learning and improvement</li>
+					</ul>
+				</div>
+				<div>
+					<h2 class="text-3xl font-bold text-gray-900 mb-4">Our Story</h2>
+					<p class="text-lg text-gray-700 mb-6">
+						Founded in [year], [Your Company Name] started with a simple idea: [brief description of your founding idea or
+						problem you're solving]. Since then, we've grown into a team of passionate individuals dedicated to [your main
+						goal or service].
+					</p>
+					<p class="text-lg text-gray-700 mb-6">
+						Our journey has been marked by [mention a few key milestones or achievements]. We're proud of how far we've
+						come, but we're even more excited about where we're going.
+					</p>
+					<p class="text-lg text-gray-700">
+						Today, we serve [number] customers across [number] countries, helping them [brief description of how you help
+						your customers].
+					</p>
+				</div>
+			</div>
+			<div class="mt-16">
+				<h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Meet Our Team</h2>
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+					@teamMember("John Doe", "CEO & Founder", "/path/to/john-doe.jpg")
+					@teamMember("Jane Smith", "CTO", "/path/to/jane-smith.jpg")
+					@teamMember("Mike Johnson", "Head of Design", "/path/to/mike-johnson.jpg")
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ teamMember(name string, role string, imageSrc string) {
+	<div class="text-center">
+		<img src={ imageSrc } alt={ name } class="w-32 h-32 rounded-full mx-auto mb-4 object-cover"/>
+		<h3 class="text-xl font-semibold text-gray-900">{ name }</h3>
+		<p class="text-gray-600">{ role }</p>
+	</div>
+}

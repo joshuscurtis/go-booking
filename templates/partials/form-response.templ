@@ -1,0 +1,17 @@
+package partials
+
+templ FormResponse(success bool, message string) {
+<div id="form-response" class="mt-4">
+  if success {
+  <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+    <p class="font-bold">Success!</p>
+    <p>{ message }</p>
+  </div>
+  } else {
+  <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+    <p class="font-bold">Error</p>
+    <p>{ message }</p>
+  </div>
+  }
+</div>
+}
