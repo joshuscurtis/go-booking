@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/joshuscurtis/go-booking/templates/pages"
 	"github.com/joshuscurtis/go-booking/templates/partials"
 
@@ -26,6 +27,33 @@ func RegisterHandlers(e *echo.Echo, db *sql.DB) {
 
 	e.GET("/partials/calendar-view", func(c echo.Context) error {
 		return CalendarViewHandler(c, db)
+	})
+
+	e.GET("/verify-ticket/:ticketID", func(c echo.Context) error {
+		return VerifyTicketHandler(c, db)
+	})
+
+  // Partials routes
+  partialsRoutes := 
+
+
+	// Admin routes with basic auth middleware
+	adminGroup := e.Group("/admin", AdminMiddleware("admin", "password"))
+	adminGroup.GET("", AdminDashboardHandler)
+	adminGroup.GET("/slots", func(c echo.Context) error {
+		return AdminSlotsHandler(c, db)
+	})
+	adminGroup.POST("/slots/create", func(c echo.Context) error {
+		return AdminCreateSlotHandler(c, db)
+	})
+	adminGroup.POST("/slots/delete", func(c echo.Context) error {
+		return AdminDeleteSlotHandler(c, db)
+	})
+	adminGroup.GET("/bookings", func(c echo.Context) error {
+		return AdminBookingsHandler(c, db)
+	})
+	adminGroup.POST("/bookings/cancel", func(c echo.Context) error {
+		return AdminCancelBookingHandler(c, db)
 	})
 }
 

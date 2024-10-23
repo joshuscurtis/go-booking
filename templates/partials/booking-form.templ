@@ -1,76 +1,119 @@
 package partials
 
 import (
-	"fmt"
-	"github.com/joshuscurtis/go-booking/models"
+"fmt"
+"github.com/joshuscurtis/go-booking/models"
+"time"
 )
 
 templ BookingForm(timeSlots []models.TimeSlot) {
-	<h2 class="text-2xl font-bold text-gray-900 mb-6">Book Your Appointment</h2>
-	<form hx-post="/partials/submit-booking" hx-target="#booking-response" hx-swap="innerHTML">
-		<div class="space-y-4">
-			<div>
-				<label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-				<input
-					type="date"
-					id="date"
-					name="date"
-					required
-					class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-					hx-get="/partials/time-slots"
-					hx-target="#time-slot"
-					hx-trigger="change"
-				/>
-			</div>
-			<div>
-				<label for="time-slot" class="block text-sm font-medium text-gray-700">Time Slot</label>
-				<select
-					id="time-slot"
-					name="time-slot"
-					required
-					class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-				>
-					<option value="">Select Time Slot</option>
-					for _, slot := range timeSlots {
-						if slot.Available {
-							<option value={ slot.Time }>{ fmt.Sprintf("%s - %d spots left", slot.Time, 5 - slot.BookedCount) }</option>
-						} else {
-							<option value={ slot.Time } disabled>{ fmt.Sprintf("%s - Fully Booked", slot.Time) }</option>
-						}
-					}
-				</select>
-			</div>
-			<div>
-				<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-				<input
-					type="text"
-					id="name"
-					name="name"
-					required
-					class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-					placeholder="Your Name"
-				/>
-			</div>
-			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-				<input
-					type="email"
-					id="email"
-					name="email"
-					required
-					class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-					placeholder="Your Email"
-				/>
-			</div>
-			<div>
-				<button
-					type="submit"
-					class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-				>
-					Book Appointment
-				</button>
-			</div>
-		</div>
-	</form>
-	<div id="booking-response" class="mt-4 text-center"></div>
+<div x-data="{ 
+        step: 1,
+        selectedDate: '',
+        selectedTime: '',
+        nextStep() {
+            const dateInput = document.getElementById('date');
+            const timeInput = document.querySelector('input[name=time-slot]:checked');
+            if (dateInput && dateInput.value && timeInput && timeInput.value) {
+                this.selectedDate = dateInput.value;
+                this.selectedTime = timeInput.value;
+                this.step = 2;
+            } else {
+                alert('Please select both date and time');
+            }
+        }
+    }" class="bg-white rounded-lg shadow-lg">
+  <div class="border-b p-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold text-gray-900">Book Appointment</h2>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-500">Step</span>
+        <div class="flex space-x-1">
+          <span class="w-2 h-2 rounded-full transition-colors duration-200"
+            :class="step === 1 ? 'bg-indigo-600' : 'bg-gray-200'"></span>
+          <span class="w-2 h-2 rounded-full transition-colors duration-200"
+            :class="step === 2 ? 'bg-indigo-600' : 'bg-gray-200'"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  // Step 1: Date and Time Selection
+  <div x-show="step === 1" class="p-4 space-y-6">
+    <div class="space-y-6">
+      <div>
+        <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+        <div class="relative">
+          <input type="date" id="date" name="date" required min={ time.Now().Format("2006-01-02") }
+            class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            hx-get="/partials/time-slots" hx-target="#time-slots-grid" hx-trigger="change" hx-swap="outerHTML"
+            hx-indicator="#date-loading" />
+          <div id="date-loading" class="htmx-indicator absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Select Time</label>
+        <div id="time-slots-grid" class="grid grid-cols-2 gap-2">
+          for _, slot := range timeSlots {
+          if slot.Available {
+          <label class="relative">
+            <input type="radio" name="time-slot" value={ slot.Time } required class="peer sr-only" />
+            <div
+              class="cursor-pointer p-3 text-center border rounded-lg peer-checked:border-indigo-600 peer-checked:bg-indigo-50 hover:bg-gray-50 transition-colors">
+              <div class="font-medium">{ slot.Time }</div>
+              <div class="text-xs text-gray-500">{ fmt.Sprintf("%d spots left", 5-slot.BookedCount) }</div>
+            </div>
+          </label>
+          } else {
+          <div class="p-3 text-center border rounded-lg bg-gray-50 opacity-50">
+            <div class="font-medium text-gray-400">{ slot.Time }</div>
+            <div class="text-xs text-gray-400">Fully Booked</div>
+          </div>
+          }
+          }
+        </div>
+      </div>
+      <button type="button" @click="nextStep()"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+        Continue to Details
+      </button>
+    </div>
+  </div>
+  // Step 2: Personal Details Form
+  <form x-show="step === 2" hx-post="/partials/submit-booking" hx-target="#booking-form-container" hx-swap="innerHTML"
+    class="p-4 space-y-6">
+    <input type="hidden" name="date" x-bind:value="selectedDate" />
+    <input type="hidden" name="time-slot" x-bind:value="selectedTime" />
+    <div x-show="selectedDate && selectedTime" class="mb-4 p-3 bg-gray-50 rounded-lg">
+      <p class="text-sm text-gray-600">Selected Appointment:</p>
+      <p class="font-medium text-gray-900" x-text="selectedDate + ' at ' + selectedTime"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+        <input type="text" id="name" name="name" required
+          class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="Enter your full name" />
+      </div>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+        <input type="email" id="email" name="email" required
+          class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="you@example.com" />
+      </div>
+    </div>
+    <div class="flex space-x-3">
+      <button type="button" @click="step = 1"
+        class="flex-1 py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+        Back
+      </button>
+      <button type="submit"
+        class="flex-1 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+        Confirm Booking
+      </button>
+    </div>
+  </form>
+  <div id="booking-response" class="p-4 border-t"></div>
+</div>
 }

@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
+	"time"
+
+	"github.com/joshuscurtis/go-booking/internal/tickets"
 	"github.com/joshuscurtis/go-booking/models"
 	"github.com/joshuscurtis/go-booking/templates/pages"
 	"github.com/joshuscurtis/go-booking/templates/partials"
-	"log"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -20,11 +22,13 @@ func BookingFormHandler(c echo.Context, db *sql.DB) error {
 	if date == "" {
 		date = time.Now().Format("2006-01-02")
 	}
+
 	timeSlots, err := getTimeSlotsFromDB(db, date)
 	if err != nil {
 		log.Printf("Error fetching time slots: %v", err)
 		return c.String(500, "An error occurred while fetching time slots")
 	}
+
 	return partials.BookingForm(timeSlots).Render(c.Request().Context(), c.Response().Writer)
 }
 
@@ -38,7 +42,7 @@ func TimeSlotHandler(c echo.Context, db *sql.DB) error {
 		log.Printf("Error fetching time slots: %v", err)
 		return c.String(500, "An error occurred while fetching time slots")
 	}
-	return partials.TimeSlotOptions(timeSlots).Render(c.Request().Context(), c.Response().Writer)
+	return partials.TimeSlots(timeSlots).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func BookingSubmitHandler(c echo.Context, db *sql.DB) error {
@@ -47,19 +51,39 @@ func BookingSubmitHandler(c echo.Context, db *sql.DB) error {
 	name := c.FormValue("name")
 	email := c.FormValue("email")
 
-	log.Printf("Received booking request - Date: %s, Time: %s, Name: %s, Email: %s", date, timeSlot, name, email)
-
 	if date == "" || timeSlot == "" || name == "" || email == "" {
 		return partials.BookingResponse(false, "Please fill in all fields.").Render(c.Request().Context(), c.Response().Writer)
 	}
 
+	// Create the booking
 	err := createBooking(db, date, timeSlot, name, email)
 	if err != nil {
 		log.Printf("Error creating booking: %v", err)
 		return partials.BookingResponse(false, "An error occurred while booking. Please try again.").Render(c.Request().Context(), c.Response().Writer)
 	}
 
-	return partials.BookingResponse(true, "Your booking has been confirmed. We look forward to seeing you!").Render(c.Request().Context(), c.Response().Writer)
+	// Create a booking object for the confirmation
+	booking := models.Booking{
+		Date:     date,
+		TimeSlot: timeSlot,
+		Name:     name,
+		Email:    email,
+	}
+
+	baseURL := "http://localhost:8080" // Configure this appropriately
+	ticket, err := tickets.GenerateTicket(booking, baseURL)
+	if err != nil {
+		log.Printf("Error generating ticket: %v", err)
+		return partials.BookingResponse(false, "Booking successful but couldn't generate ticket.").Render(c.Request().Context(), c.Response().Writer)
+	}
+
+	// Store ticket ID in database
+	err = storeTicketID(db, booking.ID, ticket.TicketID)
+	if err != nil {
+		log.Printf("Error storing ticket ID: %v", err)
+	}
+
+	return partials.BookingTicket(ticket).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func BookingsDataHandler(c echo.Context, db *sql.DB) error {
@@ -186,4 +210,19 @@ func getBookingsForDateRange(db *sql.DB, start, end time.Time) ([]models.Booking
 		bookings = append(bookings, b)
 	}
 	return bookings, nil
+}
+
+func storeTicketID(db *sql.DB, bookingID int, ticketID string) error {
+	_, err := db.Exec("INSERT INTO tickets (booking_id, ticket_id) VALUES (?, ?)", bookingID, ticketID)
+	return err
+}
+
+func getBookingByTicketID(db *sql.DB, ticketID string) (models.Booking, error) {
+	var booking models.Booking
+	err := db.QueryRow(`
+        SELECT b.* FROM bookings b
+        JOIN tickets t ON b.id = t.booking_id
+        WHERE t.ticket_id = ?
+    `, ticketID).Scan(&booking.ID, &booking.Date, &booking.TimeSlot, &booking.Name, &booking.Email)
+	return booking, err
 }

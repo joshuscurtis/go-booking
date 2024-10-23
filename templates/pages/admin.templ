@@ -1,0 +1,30 @@
+// templates/pages/admin.templ
+package pages
+
+import (
+"github.com/joshuscurtis/go-booking/templates"
+"time"
+)
+
+templ AdminDashboard() {
+@templates.Base("Admin Dashboard") {
+<div class="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">Time Slots</h2>
+          <input type="date" class="border rounded px-3 py-2" hx-get="/admin/slots" hx-target="#slots-container" value={
+            time.Now().Format("2006-01-02") } />
+        </div>
+        <div id="slots-container" hx-get="/admin/slots" hx-trigger="load"></div>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div id="booking-calendar" hx-get="/partials/calendar-view" hx-trigger="load"></div>
+      </div>
+    </div>
+  </div>
+</div>
+}
+}

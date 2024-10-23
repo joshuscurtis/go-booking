@@ -1,0 +1,59 @@
+package partials
+
+import "github.com/joshuscurtis/go-booking/models"
+
+templ VerifyTicketResponse(valid bool, message string, booking *models.Booking) {
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+  <div class={ templ.Classes( "px-6 py-4 text-center" , templ.KV("bg-green-100", valid), templ.KV("bg-red-100", !valid),
+    ) }>
+    <div class="mb-4">
+      if valid {
+      <div class="h-12 w-12 mx-auto bg-green-200 rounded-full flex items-center justify-center">
+        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      } else {
+      <div class="h-12 w-12 mx-auto bg-red-200 rounded-full flex items-center justify-center">
+        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+      }
+    </div>
+    <h2 class={ templ.Classes( "text-2xl font-bold mb-2" , templ.KV("text-green-700", valid), templ.KV("text-red-700",
+      !valid), ) }>
+      { message }
+    </h2>
+  </div>
+  if valid && booking != nil {
+  <div class="p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Details</h3>
+    <div class="space-y-3">
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Date:</span>
+        <span class="font-medium">{ booking.Date }</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Time:</span>
+        <span class="font-medium">{ booking.TimeSlot }</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Name:</span>
+        <span class="font-medium">{ booking.Name }</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Email:</span>
+        <span class="font-medium">{ booking.Email }</span>
+      </div>
+    </div>
+  </div>
+  }
+  <div class="p-6 bg-gray-50 border-t">
+    <a href="/booking"
+      class="block w-full text-center py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+      Book Another Appointment
+    </a>
+  </div>
+</div>
+}

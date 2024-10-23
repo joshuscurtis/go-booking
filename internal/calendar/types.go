@@ -1,6 +1,7 @@
 package calendar
 
 import (
+	"sort"
 	"time"
 
 	"github.com/joshuscurtis/go-booking/models"
@@ -59,4 +60,10 @@ func FilterBookingsForDate(bookings []models.Booking, date time.Time) []models.B
 		}
 	}
 	return filtered
+}
+
+func sortBookingsByTime(bookings []models.Booking) {
+	sort.Slice(bookings, func(i, j int) bool {
+		return bookings[i].TimeSlot < bookings[j].TimeSlot
+	})
 }

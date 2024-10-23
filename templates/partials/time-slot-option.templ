@@ -1,17 +1,28 @@
 package partials
 
 import (
-	"fmt"
-	"github.com/joshuscurtis/go-booking/models"
+"fmt"
+"github.com/joshuscurtis/go-booking/models"
 )
 
-templ TimeSlotOptions(timeSlots []models.TimeSlot) {
-	<option value="">Select Time Slot</option>
-	for _, slot := range timeSlots {
-		if slot.Available {
-			<option value={ slot.Time }>{ fmt.Sprintf("%s - %d spots left", slot.Time, 1 - slot.BookedCount) }</option>
-		} else {
-			<option value={ slot.Time } disabled>{ fmt.Sprintf("%s - Fully Booked", slot.Time) }</option>
-		}
-	}
+templ TimeSlots(timeSlots []models.TimeSlot) {
+<div id="time-slots-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+  for _, slot := range timeSlots {
+  if slot.Available {
+  <label class="relative">
+    <input type="radio" name="time-slot" value={ slot.Time } required class="peer sr-only" />
+    <div
+      class="cursor-pointer p-3 text-center border rounded-lg peer-checked:border-indigo-600 peer-checked:bg-indigo-50 hover:bg-gray-50 transition-colors">
+      <div class="font-medium">{ slot.Time }</div>
+      <div class="text-xs text-gray-500">{ fmt.Sprintf("%d spots left", 5-slot.BookedCount) }</div>
+    </div>
+  </label>
+  } else {
+  <div class="p-3 text-center border rounded-lg bg-gray-50 opacity-50">
+    <div class="font-medium text-gray-400">{ slot.Time }</div>
+    <div class="text-xs text-gray-400">Fully Booked</div>
+  </div>
+  }
+  }
+</div>
 }

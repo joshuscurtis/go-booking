@@ -3,12 +3,8 @@ package models
 type TimeSlot struct {
 	Time        string
 	Available   bool
+	Capacity    int
 	BookedCount int
-}
-
-type DateAvailability struct {
-	Date      string
-	Available bool
 }
 
 type Booking struct {

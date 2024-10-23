@@ -1,65 +1,130 @@
 package partials
 
 import (
-	"fmt"
-	"github.com/joshuscurtis/go-booking/internal/calendar"
-	"github.com/joshuscurtis/go-booking/models"
-	"time"
+"fmt"
+"github.com/joshuscurtis/go-booking/internal/calendar"
+"github.com/joshuscurtis/go-booking/models"
+"time"
 )
 
 templ CalendarView(bookings []models.Booking, currentDate time.Time) {
-	<div class="bg-white p-6 rounded-lg shadow">
-		<div class="flex items-center justify-between mb-4">
-			<h2 class="text-2xl font-bold text-gray-900">Booking Calendar</h2>
-			<div class="flex items-center space-x-2">
-				<button
-					class="p-2 hover:bg-gray-100 rounded-full"
-					hx-get="/partials/calendar-view"
-					hx-vals={ fmt.Sprintf(`{"date": "%s" }`, currentDate.AddDate(0, -1, 0).Format("2006-01")) }
-					hx-target="#calendar-view-container"
-				>
-					<span class="text-2xl">←</span>
-				</button>
-				<span class="text-lg font-semibold">
-					{ currentDate.Format("January 2006") }
-				</span>
-				<button
-					class="p-2 hover:bg-gray-100 rounded-full"
-					hx-get="/partials/calendar-view"
-					hx-vals={ fmt.Sprintf(`{"date": "%s" }`, currentDate.AddDate(0, 1, 0).Format("2006-01")) }
-					hx-target="#calendar-view-container"
-				>
-					<span class="text-2xl">→</span>
-				</button>
-			</div>
-		</div>
-		<div class="grid grid-cols-7 gap-px bg-gray-200">
-			<div class="bg-gray-50 p-2 text-center font-semibold">Sun</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Mon</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Tue</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Wed</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Thu</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Fri</div>
-			<div class="bg-gray-50 p-2 text-center font-semibold">Sat</div>
-			for _, day := range calendar.GenerateCalendarDays(currentDate) {
-				if day.InMonth {
-					<div class="bg-white p-2 min-h-24 border border-gray-200">
-						<div class="font-semibold">{ fmt.Sprint(day.Number) }</div>
-						<div class="space-y-1">
-							for _, booking := range calendar.FilterBookingsForDate(bookings, day.Date) {
-								<div class="text-xs bg-indigo-100 p-1 rounded">
-									<div class="font-semibold">{ booking.TimeSlot }</div>
-									<div class="truncate">{ booking.Name }</div>
-								</div>
-							}
-						</div>
-					</div>
-				} else {
-					<div class="bg-gray-50 p-2 min-h-24 border border-gray-200">
-						<div class="text-gray-400">{ fmt.Sprint(day.Number) }</div>
-					</div>
-				}
-			}
-		</div>
-	</div>
+<div id="calendar-view-container" x-data="{ view: (window.innerWidth < 768) ? 'list' : 'month', showFilters: false }"
+  class="bg-white rounded-lg shadow-lg">
+  // Header with view toggle
+  <div class="border-b p-4">
+    <div class="flex flex-col space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">Appointments</h2>
+        <div class="flex space-x-2">
+          <button @click="view = 'list'" class="px-3 py-1.5 text-sm rounded-md transition-colors"
+            :class="view === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'">
+            List
+          </button>
+          <button @click="view = 'month'" class="px-3 py-1.5 text-sm rounded-md transition-colors"
+            :class="view === 'month' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'">
+            Calendar
+          </button>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <button class="p-2 hover:bg-gray-100 rounded-md transition-colors" hx-get="/partials/calendar-view" hx-vals={
+          fmt.Sprintf(`{"date": "%s" }`, currentDate.AddDate(0, -1, 0).Format("2006-01")) }
+          hx-target="#calendar-view-container">
+          <span class="text-lg">←</span>
+        </button>
+        <span class="text-lg font-medium">{ currentDate.Format("January 2006") }</span>
+        <button class="p-2 hover:bg-gray-100 rounded-md transition-colors" hx-get="/partials/calendar-view" hx-vals={
+          fmt.Sprintf(`{"date": "%s" }`, currentDate.AddDate(0, 1, 0).Format("2006-01")) }
+          hx-target="#calendar-view-container">
+          <span class="text-lg">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div x-show="view === 'list'" class="divide-y">
+    for _, day := range calendar.GenerateCalendarDays(currentDate) {
+    if day.InMonth {
+    if dayBookings := calendar.FilterBookingsForDate(bookings, day.Date); len(dayBookings) > 0 {
+    <div class="p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="font-medium">{ day.Date.Format("Mon, Jan 2") }</span>
+          if day.Date.Format("2006-01-02") == time.Now().Format("2006-01-02") {
+          <span class="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded-full">Today</span>
+          }
+        </div>
+        <span class="text-sm text-gray-500">{ fmt.Sprintf("%d bookings", len(dayBookings)) }</span>
+      </div>
+      <div class="space-y-2">
+        for _, booking := range dayBookings {
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <form class="flex justify-between items-start" hx-post="/admin/bookings/cancel" hx-confirm={
+            fmt.Sprintf("Cancel appointment for %s at %s?", booking.Name, booking.TimeSlot) }
+            hx-target="#calendar-view-container">
+            <div>
+              <p class="font-medium">{ booking.TimeSlot }</p>
+              <p class="text-sm text-gray-600">{ booking.Name }</p>
+              <p class="text-sm text-gray-500">{ booking.Email }</p>
+            </div>
+            <input type="hidden" name="booking_id" value={ fmt.Sprint(booking.ID) } />
+            <button type="submit" class="text-red-600 hover:text-red-800 p-1">
+              <span class="text-lg">×</span>
+            </button>
+          </form>
+        </div>
+        }
+      </div>
+    </div>
+    }
+    }
+    }
+  </div>
+  <div x-show="view === 'month'" class="p-4">
+    <div class="grid grid-cols-7 gap-1 text-center">
+      for _, day := range []string{"S", "M", "T", "W", "T", "F", "S"} {
+      <div class="text-gray-500 text-sm font-medium p-1">{ day }</div>
+      }
+    </div>
+    <div class="grid grid-cols-7 gap-1 mt-1">
+      for _, day := range calendar.GenerateCalendarDays(currentDate) {
+      if day.InMonth {
+      <div class={ fmt.Sprintf("p-1 min-h-[60px] border rounded %s", templ.SafeClass(map[bool]string{ true: "bg-white" ,
+        false: "bg-gray-50" , }[day.InMonth])) }>
+        <div class="flex flex-col h-full">
+          <div class={ fmt.Sprintf("text-sm font-medium %s", templ.SafeClass(map[bool]string{ true: "text-indigo-600" ,
+            false: "text-gray-900" , }[day.Date.Format("2006-01-02")==time.Now().Format("2006-01-02")])) }>
+            { fmt.Sprint(day.Number) }
+          </div>
+          if dayBookings := calendar.FilterBookingsForDate(bookings, day.Date); len(dayBookings) > 0 {
+          <div class="mt-1">
+            <div class="text-xs bg-indigo-100 text-indigo-800 px-1 py-0.5 rounded">
+              { fmt.Sprintf("%d appts", len(dayBookings)) }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      } else {
+      <div class="p-1 min-h-[60px] bg-gray-50 border border-gray-100 rounded opacity-50">
+        <span class="text-sm text-gray-400">{ fmt.Sprint(day.Number) }</span>
+      </div>
+      }
+      }
+    </div>
+  </div>
+  <div class="border-t p-4 sticky bottom-0 bg-white">
+    <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+      hx-get="/partials/calendar-view" hx-vals={ fmt.Sprintf(`{"date": "%s" }`, time.Now().Format("2006-01")) }
+      hx-target="#calendar-view-container">
+      Today
+    </button>
+  </div>
+</div>
+<style>
+  @media (max-width: 768px) {
+    .grid-cols-7>* {
+      aspect-ratio: 1;
+    }
+  }
+</style>
 }

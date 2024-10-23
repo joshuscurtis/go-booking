@@ -7,6 +7,11 @@ require github.com/labstack/echo/v4 v4.12.0
 require github.com/mattn/go-sqlite3 v1.14.24
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
+)
+
+require (
 	github.com/a-h/templ v0.2.778 // direct
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
