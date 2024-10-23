@@ -34,7 +34,6 @@ func RegisterHandlers(e *echo.Echo, db *sql.DB) {
 	})
 
   // Partials routes
-  partialsRoutes := 
 
 
 	// Admin routes with basic auth middleware

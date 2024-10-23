@@ -2,37 +2,39 @@
 FROM golang:1.23-alpine AS builder
 
 # Install build dependencies
+RUN apk add --no-cache gcc musl-dev
+
+# Install templ
+RUN go install github.com/a-h/templ/cmd/templ@latest
 
 WORKDIR /app
+
+# Copy go.mod and go.sum first
+COPY go.mod go.sum ./
+RUN go mod download
+RUN go mod verify
 
 # Copy the entire project
 COPY . .
 
-# Download dependencies and verify
-RUN go mod download
-RUN go mod verify
+# Generate templ files
+RUN templ generate
 
-# Build the application with CGO enabled
+# Build the application
 RUN CGO_ENABLED=1 GOOS=linux go build -v -o main ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
 
 # Install runtime dependencies
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /root/
 
-# Copy the binary from the builder stage
+# Copy the binary and assets
 COPY --from=builder /app/main .
-
-# Copy templates directory
-COPY --from=builder /app/templates ./templates
-
-# Copy the SQLite database file
 COPY --from=builder /app/bookings.db .
 
-# Expose the port the app runs on
 EXPOSE 8080
 
-# Run the binary
 CMD ["./main"]
